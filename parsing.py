@@ -8,6 +8,7 @@ chrome_options = Options()
 chrome_options.add_argument("--headless")
 chrome_options.add_argument("--no-sandbox")
 chrome_options.add_argument("--disable-dev-shm-usage")
+chrome_options.add_experimental_option('excludeSwitches', ['enable-logging'])
 
 browser = webdriver.Chrome(chrome_options=chrome_options, executable_path="chromedriver")
 # browser = webdriver.Chrome()
@@ -28,7 +29,7 @@ busca = browser.find_element_by_xpath("//*[@placeholder='Pesquisar']")
 busca.send_keys("falta de agua")
 busca.send_keys(Keys.RETURN)
 
-time.sleep(10)
+time.sleep(5)
 
 noticia = browser.find_element_by_xpath("//div[@class='box-noticia2 box-noticia4 first']//h2[@class='tt_capa']")
 url = noticia.find_element_by_tag_name('a').get_attribute('href')
@@ -40,7 +41,7 @@ browser.get(url)
 
 os.system('cls')
 
-print(url)
+# print(url)
 
 titulo = browser.find_element_by_class_name("titulo")
 print(titulo.text)
