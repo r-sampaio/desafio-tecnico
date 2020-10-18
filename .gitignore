@@ -1,0 +1,5 @@
+
+.vscode
+venv
+debug.log
+geckodriver.log
