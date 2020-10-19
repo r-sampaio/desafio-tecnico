@@ -3,3 +3,4 @@
 venv
 debug.log
 geckodriver.log
+__pycache__
