@@ -11,14 +11,18 @@ from sqlalchemy import Column, Integer, String, create_engine
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker
 
+# Cria a base inicial do banco 
 banco = create_engine('sqlite:///db.sqlite3')
 
+# Gera novos objetos
 Session = sessionmaker(bind=banco)
 
+# Cria um classe base para definições de classes declarativas.
 body_page = declarative_base()
 
+
 class ConteudoPage(body_page):
-    
+    """ Cria as tabelas no banco de dados """
     __tablename__ = 'ConteudoPage'
     
     id = Column(Integer, primary_key=True)
@@ -29,14 +33,19 @@ class ConteudoPage(body_page):
         self.titulo = titulo
         self.body = body
 
+
+# Cria o bando de dados caso nao exista
 body_page.metadata.create_all(banco)
+# Inicia a sessão com o bando de dados
 session = Session()
+# Grava a classe na variavel tabela com os paramentos
 tabela = ConteudoPage(titulo=None, body=None)
 
 chrome_options = Options()
 
+
 def limpa():
-    # Limpa a tela do terminal
+    """ Limpa a tela do terminal """
     if os.name == 'nt':
         os.system('cls')
     else:
@@ -44,6 +53,7 @@ def limpa():
 
 
 def end_process():
+    """ Encerra o processo do chrome """
     if os.name == 'nt':
         os.system('taskkill /F /IM chrome.exe')
     else:
@@ -54,23 +64,29 @@ def end_process():
 
 
 def processando():
+    """ Aviso """
     print('\033[34mProcessando...\033[m')
 
 
 def google(headless, excludeSwitches, maximized):
+    """ Parametros para a função o webdriver google """
+    
     if headless:
         # Executa o browser em background mostrando as informações no terminal
-        chrome_options.add_argument("--headless") # Para desativar, comente essa linha
+        chrome_options.add_argument('--headless') # Para desativar, comente essa linha
     
     if excludeSwitches:
         # Desativa as mensagem de erro e infomações no terminal
         chrome_options.add_experimental_option('excludeSwitches', ['enable-logging'])
 
     if maximized:
-        chrome_options.add_argument("--start-maximized")
+        chrome_options.add_argument('--start-maximized')
 
 
 limpa()
+
+# Recebe inputs do usuário que sao passados a função google()
+# Inicio
 
 conexao = input(str('Deseja abrir o navegador? [S/N]: ')).strip()[0]
 if conexao in 'sS':
@@ -84,7 +100,6 @@ elif conexao in 'nN':
     headless = True
     maximized = False
 
-
 avisos = input(str('Deseja exibir aviso/erros no terminal? [S/N]: ')).strip()[0]
 if avisos in 'sS':
     excludeSwitches = False
@@ -97,6 +112,9 @@ procura = input(str('Digite o que produra: ')).strip() # Paramentro por input
 if procura == '':
     procura = 'falta de agua'
 
+# Fim
+
+# Passa os valores vindo dos do usuário para a função google
 google(headless, excludeSwitches, maximized)
 
 # Cria a instancia com os paramentos passados para o browser e o caminho do driver Google
@@ -107,7 +125,7 @@ processando()
 
 
 # Abre o browser no site passado por paramentro
-browser.get("https://www.acordacidade.com.br")
+browser.get('https://www.acordacidade.com.br')
 
 
 # Aguarda 5 segundos para que site carregue
@@ -145,11 +163,9 @@ browser.get(url)
 limpa()
 
 # Coleta e mostra no terminal o titulo da materia
-titulo = browser.find_element_by_class_name("titulo")
+titulo = browser.find_element_by_class_name('titulo')
 if conexao in 'nN':
-    tabela.titulo = titulo.text
-    # print(titulo.text)
-    # print()
+    tabela.titulo = titulo.text # Salva o resultado na tabela titulo
 
 # Coleta e mostra no terminal o body da materia
 materia = browser.find_elements_by_xpath("//div[@id='tamanhotexto']//p")
@@ -158,18 +174,23 @@ if conexao in 'nN':
     conteudo = []
     # Passa por todas as TAGs <p> dendo do body de conteudo 
     for c in materia:
-        conteudo.append(c.text)
-    tabela.body = (' '.join(conteudo))
-    # print()
+        conteudo.append(c.text) # Salva todo o resultado do laço em uma lista
+    tabela.body = (' '.join(conteudo)) # Salva a lista na tabela body
 
+# Adiciona a tabela na instancia do banco que esta na memoria
 session.add(tabela)
-session.commit()
+# Grava os dados no banco de dados
+session.commit() 
 
+# Grava os dados do banco na variavel dados e printa na tela
 dados = session.query(ConteudoPage).all()
-for conteudo_page in dados:
-    print(f'{conteudo_page.titulo}\n\n{conteudo_page.body}')
+if conexao in 'nN':
+    for conteudo_page in dados:
+        print(f'{conteudo_page.titulo}\n\n{conteudo_page.body}')
 
+# Apaga todas as tabelas do banco de dados
 body_page.metadata.drop_all(banco)
+# Encerra a sessão com o banco de dados
 session.close()
 
 # Encerra o processo do browser
